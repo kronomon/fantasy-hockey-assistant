@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,400;1,400&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup">
+      <h1>Fantasy Hockey Assistant</h1>
+      <div>
+        <h2>League Type <i id="league-type-q" class="fas fa-question-circle"></i></h2>
+        <p id="hidden-league-info" class="popup-hidden">Weekly leagues show games in entire week by default. Daily shows games remaining in the current week</p>
+      </div>
+      <div>
+        Daily&nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="switch">
+          <input type="checkbox" id="is-weekly-league">
+          <span class="slider round"></span>
+        </label>&nbsp;&nbsp;&nbsp;&nbsp;Weekly
+      </div>
+      <div class="popup-block">
+        <h2>Date Range <i id="date-range-q" class="fas fa-question-circle"></i></h2>
+        <p id="hidden-date-info" class="popup-hidden">By default, games for current week are loaded. You can change the dates to whatever you wish</p>
+        <button class="popup-btn" id="cur-week-dates">This Week</button>
+        <button class="popup-btn" id="next-week-dates">Next Week</button>
+        <br>
+        <label class="popup-label">Start Date:</label><br>
+        <input class="popup-input" type="date" id="start-date" name="start"><br>
+        <label class="popup-label">End Date:</label><br>
+        <input class="popup-input" type="date" id="end-date" name="end"><br>
+        <button class="popup-btn" id="reset-dates">Remove Custom Dates</button>
+      </div>
+      <div class="popup-block">
+        <h2>Expected Stats Calculation <i id="exp-stats-q" class="fas fa-question-circle"></i></h2>
+        <p id="hidden-exp-stats-info" class="popup-hidden">Expected stats are calculated by taking the average stats per game and multiplying by the number of games in the current week. By default it will use the current season's per game stats, but you can change what season's stats to use.</p>
+        <select class="popup-select" id="exp-stats-season"></select>
+      </div>
+      <details>
+        <summary>Additional Options</summary>
+        <input class="popup-input" type="checkbox" id="show-expected-stats" checked>
+        <label class="popup-label" for="show-expected-stats">Show Expected Stats</label><br>
+        <input class="popup-input" type="checkbox" id="show-games" checked>
+        <label class="popup-label" for="show-games">Show Game Counter</label><br>
+        <input class="popup-input" type="checkbox" id="show-links" checked>
+        <label class="popup-label" for="show-links">Show Shortcut Links</label><br>
+      </details>
+      <div class="popup-block">
+        <button class="popup-btn" id="update-results">Update Results</button>
+      </div>
+    </div>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
