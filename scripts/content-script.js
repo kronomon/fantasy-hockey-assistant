@@ -10,28 +10,30 @@ var CACHE = {
 
 var PLAYER_AVG_STATS = {};
 var NHL_TEAMS = {};
-var SKATER_CATS = [ "Goals",
-                    "Assists",
-                    "Plus/Minus",
-                    "Penalty Minutes",
-                    "Powerplay Goals",
-                    "Powerplay Assists",
-                    "Powerplay Points",
-                    "Shorthanded Goals",
-                    "Shorthanded Assists",
-                    "Shorthanded Points",
-                    "Game-Winning Goals",
-                    "Shots on Goal",
-                    "Faceoffs Won",
-                    "Hits",
-                    "Blocks"
+var SKATER_CATS_ALL = [ "Goals",
+                        "Assists",
+                        "Plus/Minus",
+                        "Penalty Minutes",
+                        "Powerplay Goals",
+                        "Powerplay Assists",
+                        "Powerplay Points",
+                        "Shorthanded Goals",
+                        "Shorthanded Assists",
+                        "Shorthanded Points",
+                        "Game-Winning Goals",
+                        "Shots on Goal",
+                        "Faceoffs Won",
+                        "Hits",
+                        "Blocks"
                   ];
-var GOALIE_CATS = [ "Wins",
-                    "Goals Against Average",
-                    "Saves",
-                    "Save Percentage",
-                    "Shutouts"
-                  ];
+var GOALIE_CATS_ALL = [ "Wins",
+                        "Goals Against Average",
+                        "Saves",
+                        "Save Percentage",
+                        "Shutouts"
+                      ];
+var SKATER_CATS = [];
+var GOALIE_CATS = [];
 const yahooToNhlCatNames = {
                     "Goals" : "goals",
                     "Assists": "assists",
@@ -85,8 +87,8 @@ async function init() {
     console.debug("Initializing teams");
     await getTeamIds();
     await getTeamSchedules();
-    updateLeagueCategories();
   }
+  updateLeagueCategories(); // league categories can change without a fresh reload (stats page of only skaters or goalies)
   console.debug("NHL Teams: ", NHL_TEAMS);
 
   if (players) {
@@ -171,18 +173,19 @@ async function getTeamSchedules() {
 function updateLeagueCategories() {
   var skaterCatsTmp = [];
   var goalieCatsTmp = [];
-  for (category of SKATER_CATS) {
+  for (category of SKATER_CATS_ALL) {
     if (document.querySelector(`[title='${category}']`)) {
       skaterCatsTmp.push(category);
     }
   }
-  for (category of GOALIE_CATS) {
+  for (category of GOALIE_CATS_ALL) {
     if (document.querySelector(`[title='${category}']`)) {
       goalieCatsTmp.push(category);
     }
   }
   SKATER_CATS = skaterCatsTmp;
   GOALIE_CATS = goalieCatsTmp;
+
 }
 
 function getTeamIdByAbbreviation(teamAbbr) {
@@ -210,13 +213,27 @@ function getTeamIdByAbbreviation(teamAbbr) {
   return null;
 }
 
+function replaceUmlaut(str) {
+  const hasUmlaut = new RegExp('(.*)[\u00dc|\u00c4|\u00d6|\u00fc|\u00e4|\u00f6|\u00df|](.*)');
+  if (hasUmlaut.test(str)) {
+    str = str.replace(/\u00dc/g, 'U');
+    str = str.replace(/\u00c4/g, 'A');
+    str = str.replace(/\u00d6/g, 'O');
+    str = str.replace(/\u00fc/g, 'u');
+    str = str.replace(/\u00e4/g, 'a');
+    str = str.replace(/\u00f6/g, 'o');
+    str = str.replace(/\u00df/g, 's');
+  }
+  return str;
+}
+
 async function getPlayerStats(teamId, name) {
   const rosterUrl = `https://statsapi.web.nhl.com/api/v1/teams/${teamId}/roster`;
   let playerId = null;
   const rosterResponse = await fetch(rosterUrl).then(response => response.json());
   this.rosterResponse = rosterResponse;
   for (let player of rosterResponse['roster']) {
-    if (name === player.person.fullName) {
+    if (name === replaceUmlaut(player.person.fullName)) {
       playerId = player.person.id;
       break;
     }
