@@ -311,8 +311,11 @@ function isCumulativeStat(stat) {
 async function updatePlayer(player) {
   var averageStats;
   const regexpPlayerInfo = /(.*) ([A-Z]+) - ([A-Z]+).*/;
+  const regexNameInitial = /^[A-Z]{1}\. .*/;
   const match = player.innerText.match(regexpPlayerInfo);
-  if (match.length > 2) {
+
+  // first name initials do not work for stats lookup
+  if (match && match.length > 2 && !regexNameInitial.test(match[1])) {
     const name = match[1];
     const teamAbbr = match[match.length - 2].toUpperCase();
     const position = match[match.length - 1].toUpperCase();
