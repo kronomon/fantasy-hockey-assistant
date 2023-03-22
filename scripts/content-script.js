@@ -2,9 +2,9 @@ var CACHE = {
   startDate: "",
   endDate: "",
   isWeeklyLeague: "",
-  showExpectedStats: "",
-  showGames: "",
-  showLinks: "",
+  showExpectedStats: "true",
+  showGames: "true",
+  showLinks: "true",
   expectedStatsSeason: ""
 }
 
