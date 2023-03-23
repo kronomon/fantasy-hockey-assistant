@@ -1,27 +1,27 @@
 // weekly or daily league
-var leagueTypeQ = document.getElementById("league-type-q");
-var hiddenLeagueInfo = document.getElementById("hidden-league-info");
-var isWeeklyLeague = document.getElementById("is-weekly-league");
+let leagueTypeQ = document.getElementById("league-type-q");
+let hiddenLeagueInfo = document.getElementById("hidden-league-info");
+let isWeeklyLeague = document.getElementById("is-weekly-league");
 
 // dates
-var dateRangeQ = document.getElementById("date-range-q");
-var hiddenDateInfo = document.getElementById("hidden-date-info");
-var curWeekDates = document.getElementById("cur-week-dates");
-var nextWeekDates = document.getElementById("next-week-dates");
-var startDate = document.getElementById("start-date");
-var endDate = document.getElementById("end-date");
-var resetDates = document.getElementById("reset-dates");
+let dateRangeQ = document.getElementById("date-range-q");
+let hiddenDateInfo = document.getElementById("hidden-date-info");
+let curWeekDates = document.getElementById("cur-week-dates");
+let nextWeekDates = document.getElementById("next-week-dates");
+let startDate = document.getElementById("start-date");
+let endDate = document.getElementById("end-date");
+let resetDates = document.getElementById("reset-dates");
 
 // expected stats calculation
-var expectedStatsQ = document.getElementById("exp-stats-q");
-var hiddenExpectedStatsInfo = document.getElementById("hidden-exp-stats-info");
-var expectedStatsSeason = document.getElementById("exp-stats-season");
+let expectedStatsQ = document.getElementById("exp-stats-q");
+let hiddenExpectedStatsInfo = document.getElementById("hidden-exp-stats-info");
+let expectedStatsSeason = document.getElementById("exp-stats-season");
 
 // display options
-var showExpectedStats = document.getElementById("show-expected-stats");
-var showGames = document.getElementById("show-games");
-var showLinks = document.getElementById("show-links");
-var updateResults = document.getElementById("update-results");
+let showExpectedStats = document.getElementById("show-expected-stats");
+let showGames = document.getElementById("show-games");
+let showLinks = document.getElementById("show-links");
+let updateResults = document.getElementById("update-results");
 
 chrome.storage.sync.get(["startDate"], function(result) {
     if (result) {
@@ -63,9 +63,9 @@ chrome.storage.sync.get("showLinks", function(result) {
 
 // load current season
 window.onload = function() {
-    var curMonth = new Date().getMonth();
-    var curYear = new Date().getFullYear();
-    var opts = [];
+    let curMonth = new Date().getMonth();
+    let curYear = new Date().getFullYear();
+    let opts = [];
     if (curMonth > 7) {
         opts.push({'value': `${curYear}${curYear+1}`, 'text': `${curYear}-${curYear+1} Season`});
         opts.push({'value': `${curYear-1}${curYear}`, 'text': `${curYear-1}-${curYear} Season`});
@@ -74,8 +74,8 @@ window.onload = function() {
         opts.push({'value': `${curYear-2}${curYear-1}`, 'text': `${curYear-2}-${curYear-1} Season`});
     }
     console.debug(opts);
-    for (var i in opts) {
-        var opt = document.createElement('option');
+    for (let i in opts) {
+        let opt = document.createElement('option');
         opt.value = opts[i]['value'];
         opt.innerHTML = opts[i]['text'];
         expectedStatsSeason.appendChild(opt);

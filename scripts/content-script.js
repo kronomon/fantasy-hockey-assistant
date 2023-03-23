@@ -1,4 +1,4 @@
-var CACHE = {
+let CACHE = {
   startDate: "",
   endDate: "",
   isWeeklyLeague: "",
@@ -8,9 +8,9 @@ var CACHE = {
   expectedStatsSeason: ""
 }
 
-var PLAYER_AVG_STATS = {};
-var NHL_TEAMS = {};
-var SKATER_CATS_ALL = [ "Goals",
+let PLAYER_AVG_STATS = {};
+let NHL_TEAMS = {};
+let SKATER_CATS_ALL = [ "Goals",
                         "Assists",
                         "Plus/Minus",
                         "Penalty Minutes",
@@ -26,14 +26,14 @@ var SKATER_CATS_ALL = [ "Goals",
                         "Hits",
                         "Blocks"
                   ];
-var GOALIE_CATS_ALL = [ "Wins",
+let GOALIE_CATS_ALL = [ "Wins",
                         "Goals Against Average",
                         "Saves",
                         "Save Percentage",
                         "Shutouts"
                       ];
-var SKATER_CATS = [];
-var GOALIE_CATS = [];
+let SKATER_CATS = [];
+let GOALIE_CATS = [];
 const yahooToNhlCatNames = {
                     "Goals" : "goals",
                     "Assists": "assists",
@@ -104,12 +104,12 @@ async function getTeamIds() {
     return response.json();
   })
   .then(function(data) {
-    for (teamData of data['teams']) {
+    for (let teamData of data['teams']) {
       if (!NHL_TEAMS[teamData['id']]) {
         NHL_TEAMS[teamData['id']] = new Map();
       }
       NHL_TEAMS[teamData['id']]['abbreviation'] = teamData['abbreviation'].toUpperCase();
-      NHL_TEAMS[teamData['id']]['urlname'] = teamData['name'].replace(/\s+/g,'-').toLowerCase();
+      NHL_TEAMS[teamData['id']]['urlname'] = teamData['name'].replace(/\s+/g,'-').replace(/\./g,'').toLowerCase();
     }
   });
 }
@@ -127,9 +127,9 @@ function loadCache() {
 
 // populate NHL_TEAMS with schedule data
 async function getTeamSchedules() {
-  var startDate = CACHE.startDate;
-  var endDate = CACHE.endDate;
-  var today = new Date();
+  let startDate = CACHE.startDate;
+  let endDate = CACHE.endDate;
+  let today = new Date();
   if (!startDate) {
     if (CACHE.isWeeklyLeague) {
       startDate = new Date();
@@ -152,8 +152,8 @@ async function getTeamSchedules() {
     return response.json();
   })
   .then(function(data) {
-    for (day of data['dates']) {
-      for (game of day['games']) {
+    for (let day of data['dates']) {
+      for (let game of day['games']) {
         let homeId = game.teams.home.team.id;
         let awayId = game.teams.away.team.id;
         if (!NHL_TEAMS[homeId]['games']) {
@@ -171,14 +171,14 @@ async function getTeamSchedules() {
 
 // get relevant categories in league
 function updateLeagueCategories() {
-  var skaterCatsTmp = [];
-  var goalieCatsTmp = [];
-  for (category of SKATER_CATS_ALL) {
+  let skaterCatsTmp = [];
+  let goalieCatsTmp = [];
+  for (let category of SKATER_CATS_ALL) {
     if (document.querySelector(`[title='${category}']`)) {
       skaterCatsTmp.push(category);
     }
   }
-  for (category of GOALIE_CATS_ALL) {
+  for (let category of GOALIE_CATS_ALL) {
     if (document.querySelector(`[title='${category}']`)) {
       goalieCatsTmp.push(category);
     }
@@ -214,7 +214,7 @@ function getTeamIdByAbbreviation(teamAbbr) {
 }
 
 function replaceUmlaut(str) {
-  const hasUmlaut = new RegExp('(.*)[\u00dc|\u00c4|\u00d6|\u00fc|\u00e4|\u00f6|\u00df|](.*)');
+  const hasUmlaut = /.*(\u00dc|\u00c4|\u00d6|\u00fc|\u00e4|\u00f6|\u00df).*/;
   if (hasUmlaut.test(str)) {
     str = str.replace(/\u00dc/g, 'U');
     str = str.replace(/\u00c4/g, 'A');
@@ -240,9 +240,9 @@ async function getPlayerStats(teamId, name) {
   }
 
   if (playerId) {
-    var playerUrl = `https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason`
+    let playerUrl = `https://statsapi.web.nhl.com/api/v1/people/${playerId}/stats?stats=statsSingleSeason`
     if (CACHE.expectedStatsSeason) {
-      const regex = new RegExp('^[0-9]{8}$');
+      const regex = /^\d{8}$/;
       if (regex.test(CACHE.expectedStatsSeason)) {
         playerUrl += `&season=${CACHE.expectedStatsSeason}`
         console.debug(`Calculating expected stats using ${CACHE.expectedStatsSeason} season`);
@@ -260,7 +260,7 @@ async function getPlayerStats(teamId, name) {
 }
 
 function playerStatsToAverages(playerStats) {
-  averageStats = new Map();
+  let averageStats = new Map();
   if (playerStats['games'] > 0) {
     for (let category of SKATER_CATS) {
       averageStats.set(category, playerStats[yahooToNhlCatNames[category]]/playerStats['games']);
@@ -270,7 +270,7 @@ function playerStatsToAverages(playerStats) {
 }
 
 function goalieStatsToAverages(goalieStats) {
-  averageStats = new Map();
+  let averageStats = new Map();
   if (goalieStats['games'] > 0) {
     for (let category of GOALIE_CATS) {
       averageStats.set(category, goalieStats[yahooToNhlCatNames[category]]);
@@ -283,9 +283,9 @@ function goalieStatsToAverages(goalieStats) {
 }
 
 function getExpectedStatsStr(stats, numGames) {
-  var expectedStatsStr = "";
-  var expStats;
-  var cnt = 0;
+  let expectedStatsStr = "";
+  let expStats;
+  let cnt = 0;
   for (let cat of stats.keys()) {
     if (cnt > 0) { expectedStatsStr += ', '; }
     if (cnt % 3 === 0) { expectedStatsStr += '<br>'; }
@@ -302,16 +302,13 @@ function getExpectedStatsStr(stats, numGames) {
 }
 
 function isCumulativeStat(stat) {
-  if (stat.toLowerCase().includes('average') || stat.toLowerCase().includes('percentage')) {
-    return false;
-  }
-  return true;
+  return !(stat.toLowerCase().includes('average') || stat.toLowerCase().includes('percentage'));
 }
 
 async function updatePlayer(player) {
-  var averageStats;
+  let averageStats;
   const regexpPlayerInfo = /(.*) ([A-Z]+) - ([A-Z]+).*/;
-  const regexNameInitial = /^[A-Z]{1}\. .*/;
+  const regexNameInitial = /^[A-Z]\. .*/;
   const match = player.innerText.match(regexpPlayerInfo);
 
   // first name initials do not work for stats lookup
@@ -325,7 +322,7 @@ async function updatePlayer(player) {
     const dailyFaceoffUrl = `https://www.dailyfaceoff.com/teams/${NHL_TEAMS[teamId]['urlname']}/line-combinations`;
 
     if (teamId) {
-      var numGames = NHL_TEAMS[teamId]['games'];
+      let numGames = NHL_TEAMS[teamId]['games'];
 
       if (PLAYER_AVG_STATS[name]) {
         console.debug(`Fetching ${name}'s stats cache`);
@@ -342,7 +339,7 @@ async function updatePlayer(player) {
         PLAYER_AVG_STATS[name] = averageStats;
       }
       
-      var infoBox = document.getElementById(infoId);
+      let infoBox = document.getElementById(infoId);
       if (infoBox) {
         // clear any existing info if it exists
         infoBox.innerHTML = "";
