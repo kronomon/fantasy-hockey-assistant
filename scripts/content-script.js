@@ -85,7 +85,7 @@ async function init() {
   // fetch data on first initialization
   if (Object.keys(NHL_TEAMS).length === 0) {
     console.debug("Initializing teams");
-    await getTeamIds();
+    await initTeams();
     await getTeamSchedules();
   }
   updateLeagueCategories(); // league categories can change without a fresh reload (stats page of only skaters or goalies)
@@ -96,8 +96,7 @@ async function init() {
   }
 }
 
-// get map of team abbreviations to NHL api ids
-async function getTeamIds() {
+async function initTeams() {
   const url = 'https://statsapi.web.nhl.com/api/v1/teams'
   await fetch(url)
   .then(function(response) {
@@ -109,7 +108,8 @@ async function getTeamIds() {
         NHL_TEAMS[teamData['id']] = new Map();
       }
       NHL_TEAMS[teamData['id']]['abbreviation'] = teamData['abbreviation'].toUpperCase();
-      NHL_TEAMS[teamData['id']]['urlname'] = teamData['name'].replace(/\s+/g,'-').replace(/\./g,'').toLowerCase();
+      NHL_TEAMS[teamData['id']]['urlname'] = normalizeStr(teamData['name']).replace(/\s+/g,'-').replace(/\./g,'').toLowerCase();
+      NHL_TEAMS[teamData['id']]['games'] = 0;
     }
   });
 }
@@ -156,12 +156,6 @@ async function getTeamSchedules() {
       for (let game of day['games']) {
         let homeId = game.teams.home.team.id;
         let awayId = game.teams.away.team.id;
-        if (!NHL_TEAMS[homeId]['games']) {
-          NHL_TEAMS[homeId]['games'] = 0;
-        }
-        if (!NHL_TEAMS[awayId]['games']) {
-          NHL_TEAMS[awayId]['games'] = 0;
-        }
         NHL_TEAMS[homeId]['games'] += 1;
         NHL_TEAMS[awayId]['games'] += 1;
       }
@@ -213,18 +207,9 @@ function getTeamIdByAbbreviation(teamAbbr) {
   return null;
 }
 
-function replaceUmlaut(str) {
-  const hasUmlaut = /.*(\u00dc|\u00c4|\u00d6|\u00fc|\u00e4|\u00f6|\u00df).*/;
-  if (hasUmlaut.test(str)) {
-    str = str.replace(/\u00dc/g, 'U');
-    str = str.replace(/\u00c4/g, 'A');
-    str = str.replace(/\u00d6/g, 'O');
-    str = str.replace(/\u00fc/g, 'u');
-    str = str.replace(/\u00e4/g, 'a');
-    str = str.replace(/\u00f6/g, 'o');
-    str = str.replace(/\u00df/g, 's');
-  }
-  return str;
+// remove diacritics like é in Montréal
+function normalizeStr(str) {
+  return str.normalize('NFKD').replace(/[^\w\s.-_\/]/g, '')
 }
 
 async function getPlayerStats(teamId, name) {
@@ -233,7 +218,7 @@ async function getPlayerStats(teamId, name) {
   const rosterResponse = await fetch(rosterUrl).then(response => response.json());
   this.rosterResponse = rosterResponse;
   for (let player of rosterResponse['roster']) {
-    if (name === replaceUmlaut(player.person.fullName)) {
+    if (name === normalizeStr(player.person.fullName)) {
       playerId = player.person.id;
       break;
     }
@@ -286,6 +271,11 @@ function getExpectedStatsStr(stats, numGames) {
   let expectedStatsStr = "";
   let expStats;
   let cnt = 0;
+
+  if (numGames == 0) {
+    return "N/A";
+  }
+
   for (let cat of stats.keys()) {
     if (cnt > 0) { expectedStatsStr += ', '; }
     if (cnt % 3 === 0) { expectedStatsStr += '<br>'; }
@@ -349,11 +339,12 @@ async function updatePlayer(player) {
         player.appendChild(infoBox);
       }
       if (CACHE.showGames) {
-        infoBox.innerHTML += `<span class="nhl-games-${numGames} info-box">G: ${numGames}</span>`
+        let gamebox_css = numGames > 5 ? "nhl-games-max":`nhl-games-${numGames}`;
+        infoBox.innerHTML += `<span class="${gamebox_css} info-box">G: ${numGames}</span>`;
       }
       if (CACHE.showLinks) {
-        infoBox.innerHTML += `<span class="dobber-box info-box"><a href="${dobberUrl}" target="_blank">Dobber</a></span>`
-        infoBox.innerHTML += `<span class="dailyfaceoff-box info-box"><a href="${dailyFaceoffUrl}" target="_blank">DailyFaceoff</a></span>`
+        infoBox.innerHTML += `<span class="dobber-box info-box"><a href="${dobberUrl}" target="_blank">Dobber</a></span>`;
+        infoBox.innerHTML += `<span class="dailyfaceoff-box info-box"><a href="${dailyFaceoffUrl}" target="_blank">DailyFaceoff</a></span>`;
       }
       if (CACHE.showExpectedStats && averageStats) {
         let expectedStatsStr = getExpectedStatsStr(averageStats, numGames);
