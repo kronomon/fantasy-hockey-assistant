@@ -1,12 +1,11 @@
 .popup {
     width: 300px;
     display: block;
-    margin: 10px;
     background-color: #00205B;
     color: rgb(215, 226, 255);
     text-align: center;
     font-family: 'Roboto', sans-serif;
-    padding: 6px;
+    padding: 10px;
 }
 
 .popup-block {

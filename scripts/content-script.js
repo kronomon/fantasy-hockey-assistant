@@ -117,7 +117,7 @@ async function initTeams() {
 function loadCache() {
   for (const key in CACHE) {
     chrome.storage.sync.get(`${key}`, function(result) {
-      if (result[key]) {
+      if (result[key] !== undefined) {
         CACHE[key] = result[key];
         console.debug(`Loading cache: ${key}: ${result[key]}`);
       }
