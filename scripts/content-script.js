@@ -209,7 +209,7 @@ function getTeamIdByAbbreviation(teamAbbr) {
 
 // remove diacritics like é in Montréal
 function normalizeStr(str) {
-  return str.normalize('NFKD').replace(/[^\w\s.-_\/]/g, '')
+  return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, "");
 }
 
 async function getPlayerStats(teamId, name) {

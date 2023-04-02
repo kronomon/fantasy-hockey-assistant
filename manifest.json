@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Fantasy Hockey Assistant",
   "description": "See your team's expected performance in your next matchup",
-  "version": "1.3",
+  "version": "1.4",
   "background": {
     "service_worker": "service-worker.js"
   },
